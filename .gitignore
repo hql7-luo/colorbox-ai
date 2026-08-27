@@ -1,0 +1,13 @@
+node_modules
+.next
+.env*
+!.env.example
+prisma/*.db*
+prisma/*.sqlite*
+storage/uploads/**
+!storage/uploads/.gitkeep
+coverage
+*.log
+*.tsbuildinfo
+.vercel
+.DS_Store

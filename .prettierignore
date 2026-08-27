@@ -1,0 +1,5 @@
+.next
+node_modules
+storage
+prisma/*.db
+pnpm-lock.yaml
