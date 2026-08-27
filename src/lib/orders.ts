@@ -52,7 +52,10 @@ export function serializeOrder(order: StoredOrder) {
     },
     files: order.files.map((file) => ({
       ...file,
-      url: `/api/uploads?path=${encodeURIComponent(file.relativePath)}`,
+      url:
+        order.isDemo && file.relativePath.startsWith("demo/")
+          ? undefined
+          : `/api/uploads?path=${encodeURIComponent(file.relativePath)}`,
     })),
   };
 }

@@ -7,12 +7,13 @@ import { useLanguage } from "@/i18n/language-provider";
 import type { TranslationKey } from "@/i18n";
 import { orderStatuses } from "@/lib/order-status";
 import type { ClientOrder } from "@/types";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { allowsPersistentOrderActions, PUBLIC_DEMO_MODE } from "@/lib/public-demo";
 
 type Notice = { key: TranslationKey; params?: Record<string, string | number> } | null;
 
 export function OrderList() {
   const { language, t, formatDate, formatDateTime } = useLanguage();
+  const allowPersistenceActions = allowsPersistentOrderActions();
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [customers, setCustomers] = useState<string[]>([]);
   const [search, setSearch] = useState("");
@@ -164,18 +165,22 @@ export function OrderList() {
                       >
                         {t("orders.view")}
                       </Link>
-                      <button
-                        className="font-semibold text-slate-600 hover:text-navy"
-                        onClick={() => void copyOrder(order.id)}
-                      >
-                        {t("orders.copy")}
-                      </button>
-                      <button
-                        className="font-semibold text-red-700 hover:underline"
-                        onClick={() => void deleteOrder(order)}
-                      >
-                        {t("orders.delete")}
-                      </button>
+                      {allowPersistenceActions && (
+                        <>
+                          <button
+                            className="font-semibold text-slate-600 hover:text-navy"
+                            onClick={() => void copyOrder(order.id)}
+                          >
+                            {t("orders.copy")}
+                          </button>
+                          <button
+                            className="font-semibold text-red-700 hover:underline"
+                            onClick={() => void deleteOrder(order)}
+                          >
+                            {t("orders.delete")}
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>

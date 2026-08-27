@@ -5,16 +5,19 @@ import { orderInputSchema } from "@/lib/order-schema";
 import { deriveStatus, reviewOrder } from "@/lib/review";
 import { formatDateTime, isLanguage, translate } from "@/i18n";
 import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { getDemoClientOrder } from "@/lib/demo-orders";
 
 type Context = { params: Promise<{ id: string }> };
 
-export async function GET(_request: Request, context: Context) {
-  if (PUBLIC_DEMO_MODE)
-    return NextResponse.json(
-      { error: "Order history is disabled in the public demo." },
-      { status: 404 },
-    );
+export async function GET(request: Request, context: Context) {
   const { id } = await context.params;
+  if (PUBLIC_DEMO_MODE) {
+    const requestedLanguage = new URL(request.url).searchParams.get("lang");
+    const language = isLanguage(requestedLanguage) ? requestedLanguage : "zh";
+    const demoOrder = getDemoClientOrder(id, language);
+    if (!demoOrder) return NextResponse.json({ error: "Order does not exist" }, { status: 404 });
+    return NextResponse.json(demoOrder);
+  }
   const order = await prisma.order.findUnique({ where: { id }, include: { files: true } });
   if (!order) return NextResponse.json({ error: "订单不存在" }, { status: 404 });
   return NextResponse.json(serializeOrder(order));

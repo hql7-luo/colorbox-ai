@@ -6,17 +6,37 @@ import { deriveStatus, reviewOrder } from "@/lib/review";
 import { formatDateTime } from "@/i18n";
 import { normalizeOrderStatus, statusStorageValues } from "@/lib/order-status";
 import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { getDemoClientOrders } from "@/lib/demo-orders";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-  if (PUBLIC_DEMO_MODE) {
-    return NextResponse.json({ orders: [], customers: [], publicDemo: true });
-  }
   const { searchParams } = new URL(request.url);
   const search = searchParams.get("search")?.trim() || "";
   const status = searchParams.get("status") || "";
   const customer = searchParams.get("customer") || "";
+  if (PUBLIC_DEMO_MODE) {
+    const normalizedSearch = search.toLocaleLowerCase();
+    const demoOrders = getDemoClientOrders().filter((order) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        [order.orderNo, order.customerName, order.productName].some((value) =>
+          value.toLocaleLowerCase().includes(normalizedSearch),
+        );
+      return (
+        matchesSearch &&
+        (!status || order.status === status) &&
+        (!customer || order.customerName === customer)
+      );
+    });
+    return NextResponse.json({
+      orders: demoOrders,
+      customers: getDemoClientOrders()
+        .map((order) => order.customerName)
+        .sort(),
+      publicDemo: true,
+    });
+  }
   const orders = await prisma.order.findMany({
     where: {
       ...(status ? { status: { in: statusStorageValues(normalizeOrderStatus(status)) } } : {}),

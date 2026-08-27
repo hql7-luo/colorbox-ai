@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { emptyOrderSpec, orderSpecSchema } from "@/lib/order-schema";
 import { buildExcelRows } from "@/lib/export";
 import { buildReviewSheet, reviewOrder } from "@/lib/review";
-import { DEMO_REVIEW } from "@/lib/demo";
+import { buildDemoClientOrder, getDemoOrder } from "@/lib/demo-orders";
 
 const spec = orderSpecSchema.parse({
   ...emptyOrderSpec,
@@ -21,9 +21,13 @@ const spec = orderSpecSchema.parse({
 });
 
 describe("输出生成", () => {
-  it("Demo 固定展示 3 个缺失项和 2 个生产风险", () => {
-    expect(DEMO_REVIEW.missingFields).toHaveLength(3);
-    expect(DEMO_REVIEW.riskItems).toHaveLength(2);
+  it("统一 Demo 可生成有实际价值的审单结果", () => {
+    const demo = getDemoOrder("folding-carton");
+    expect(demo).toBeDefined();
+    const order = buildDemoClientOrder(demo!, "zh");
+    expect(order.missingFields).toHaveLength(4);
+    expect(order.riskItems.length).toBeGreaterThanOrEqual(2);
+    expect(order.reviewSheet).toContain("DEMO-CBX-001");
   });
   it("生成中文生产评审单", () => {
     const sheet = buildReviewSheet("CBX-TEST-001", spec, [], [], { salesperson: "小林" });

@@ -22,6 +22,7 @@ export const en: Record<TranslationKey, string> = {
   "home.pasteLabel": "Or paste the customer request",
   "home.pastePlaceholder": "Paste an email, quotation request, or chat message here…",
   "home.tryDemo": "Try Demo",
+  "home.samplesTitle": "Try a sample order",
   "home.start": "Start Review",
   "home.removeFile": "Remove {name}",
   "home.step1.title": "Upload Customer Files",
@@ -36,13 +37,14 @@ export const en: Record<TranslationKey, string> = {
   "home.value3": "Standardize production handoff",
 
   "public.mode": "Demo mode: using pre-generated extraction results and local review rules.",
-  "public.demoData": "Demo data — no real customer information",
+  "public.demoData": "Demo Data",
+  "public.demoDescription": "Fictional order for product demonstration only.",
   "public.warning":
     "Do not upload real customer or commercially sensitive files to the public demo.",
   "public.uploadDisabled":
     "File upload is disabled in the public demo. Paste fictional text or use Try Demo.",
   "public.orders":
-    "Public demo data is temporary and is not saved as order history. Local factory deployment uses SQLite persistence.",
+    "These three fictional sample orders are read-only, share one Demo data source, and never write to the database.",
   "public.settings": "Public demo settings are read-only.",
 
   "process.current": "Currently on step {step}",

@@ -67,6 +67,10 @@ export function ProductionReviewSheet({
     spec.finishes
       .map((finish) => translateFinish(finish, exportLanguage))
       .join(exportLanguage === "zh" ? "、" : " / ") || sheetT("result.none");
+  const material = [
+    spec.paperWeight ? `${spec.paperWeight}gsm` : sheetT("review.toConfirm"),
+    show(spec.paperType),
+  ].join(" ");
   const postProcessing = [
     spec.dieCut && sheetT("field.dieCut"),
     spec.creasing && sheetT("field.creasing"),
@@ -84,7 +88,7 @@ export function ProductionReviewSheet({
       `${show(spec.quantity)} ${sheetT("sheet.pieces")}${spec.skuCount ? ` / ${spec.skuCount} ${sheetT("sheet.skus")}` : ""}`,
     ],
     [sheetT("review.finishedSize"), size],
-    [sheetT("field.paperType"), `${show(spec.paperWeight)}gsm ${show(spec.paperType)}`],
+    [sheetT("field.paperType"), material],
     [sheetT("field.printingMethod"), `${show(spec.printingMethod)} / ${show(spec.frontColors)}`],
     [sheetT("review.finishes"), finishing],
     [sheetT("review.postProcessing"), postProcessing || sheetT("review.toConfirm")],
@@ -147,7 +151,9 @@ export function ProductionReviewSheet({
           })}
         </p>
         {order.isDemo && (
-          <p className="mt-3 text-xs font-semibold text-slate-500">{t("public.demoData")}</p>
+          <p className="mt-3 text-xs font-semibold text-slate-500">
+            {t("public.demoData")} · {t("public.demoDescription")}
+          </p>
         )}
       </header>
 

@@ -6,6 +6,7 @@ import clsx from "clsx";
 import type { ClientFile } from "@/types";
 import { useLanguage } from "@/i18n/language-provider";
 import type { TranslationKey } from "@/i18n";
+import { DEMO_ORDERS } from "@/lib/demo-orders";
 import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
 
 function formatBytes(size: number) {
@@ -15,7 +16,7 @@ function formatBytes(size: number) {
 
 export function HomeReview() {
   const router = useRouter();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const fileInput = useRef<HTMLInputElement>(null);
   const sessionId = useMemo(() => crypto.randomUUID(), []);
   const [sourceText, setSourceText] = useState("");
@@ -165,14 +166,7 @@ export function HomeReview() {
               {t(message)}
             </p>
           )}
-          <div className="mt-5 flex flex-col-reverse items-stretch justify-between gap-3 sm:flex-row sm:items-center">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => router.push("/new?demo=1")}
-            >
-              {t("home.tryDemo")}
-            </button>
+          <div className="mt-5 flex justify-end">
             <button
               type="button"
               className="btn-primary min-w-40 px-7"
@@ -182,6 +176,37 @@ export function HomeReview() {
               {t("home.start")}
             </button>
           </div>
+        </div>
+      </section>
+
+      <section className="mt-14">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="eyebrow">{t("public.demoData")}</p>
+            <h2 className="mt-1 font-display text-2xl font-black tracking-tight text-ink">
+              {t("home.samplesTitle")}
+            </h2>
+          </div>
+          <p className="text-sm text-slate-500">{t("public.demoDescription")}</p>
+        </div>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          {DEMO_ORDERS.map((demo) => (
+            <article key={demo.id} className="rounded-xl border border-line bg-white p-5">
+              <h3 className="font-bold text-ink">{demo.displayName[language]}</h3>
+              <ul className="mt-3 space-y-1 text-sm leading-6 text-slate-600">
+                {demo.sampleLines[language].map((line) => (
+                  <li key={line}>{line}</li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                className="btn-secondary mt-5 w-full"
+                onClick={() => router.push(`/new?demo=${demo.id}`)}
+              >
+                {t("home.tryDemo")}
+              </button>
+            </article>
+          ))}
         </div>
       </section>
 

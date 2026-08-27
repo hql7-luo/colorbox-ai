@@ -109,19 +109,21 @@ Leave `AI_API_KEY` empty. The local application still supports manual editing, h
 
 ## Public demo vs. local factory mode
 
-| Capability                 | Public Vercel demo           | Local factory mode            |
-| -------------------------- | ---------------------------- | ----------------------------- |
-| Demo workflow              | Full three-step flow         | Full three-step flow          |
-| AI key                     | Not configured               | Optional environment variable |
-| Customer file upload       | Disabled                     | Stored locally                |
-| Persistent database writes | Disabled                     | SQLite + Prisma               |
-| Order data lifetime        | Current browser session only | Persistent local history      |
+| Capability                 | Public Vercel demo            | Local factory mode            |
+| -------------------------- | ----------------------------- | ----------------------------- |
+| Demo workflow              | Full three-step flow          | Full three-step flow          |
+| AI key                     | Not configured                | Optional environment variable |
+| Customer file upload       | Disabled                      | Stored locally                |
+| Persistent database writes | Disabled                      | SQLite + Prisma               |
+| Order data                 | Three read-only sample orders | Persistent local history      |
 
 The public demo uses only fictional data and local review rules. **Do not upload or paste real customer or commercially sensitive information into the public demo.**
 
-## Demo data
+## Demo Scenarios
 
-The repository seeds three clearly marked fictional orders:
+The public demo includes three fictional packaging scenarios and does not require an AI key or database.
+
+Local setup seeds the same three clearly marked fictional orders from the shared Demo source:
 
 | Demo customer     | Product                 | Scenario                                                     |
 | ----------------- | ----------------------- | ------------------------------------------------------------ |

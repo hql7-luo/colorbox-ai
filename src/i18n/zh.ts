@@ -20,6 +20,7 @@ export const zh = {
   "home.pasteLabel": "或粘贴客户询盘",
   "home.pastePlaceholder": "粘贴客户邮件、询价或聊天记录…",
   "home.tryDemo": "体验演示",
+  "home.samplesTitle": "体验示例订单",
   "home.start": "开始审单",
   "home.removeFile": "删除 {name}",
   "home.step1.title": "上传客户资料",
@@ -34,10 +35,11 @@ export const zh = {
   "home.value3": "标准化业务到生产的交接",
 
   "public.mode": "演示模式：使用预置提取结果和本地规则。",
-  "public.demoData": "演示数据 — 不代表真实客户订单",
+  "public.demoData": "演示数据",
+  "public.demoDescription": "虚构订单，仅用于功能演示。",
   "public.warning": "公开演示版本请勿上传真实客户或商业敏感资料。",
   "public.uploadDisabled": "公开演示版本已关闭文件上传。请粘贴虚构文本或使用“体验演示”。",
-  "public.orders": "公开演示数据仅保留在当前页面，不保存历史订单；本地工厂部署使用 SQLite 持久化。",
+  "public.orders": "这 3 个虚构示例订单仅供查看，全部来自统一演示数据，不写入数据库。",
   "public.settings": "公开演示版本的设置为只读。",
 
   "process.current": "当前第 {step} 步",

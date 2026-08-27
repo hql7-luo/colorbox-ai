@@ -4,10 +4,12 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ProductionReviewSheet } from "@/components/production-review-sheet";
 import { useLanguage } from "@/i18n/language-provider";
+import { allowsPersistentOrderActions } from "@/lib/public-demo";
 import type { ClientOrder } from "@/types";
 
 export function OrderDetail({ id }: { id: string }) {
   const { t } = useLanguage();
+  const allowPersistenceActions = allowsPersistentOrderActions();
   const [order, setOrder] = useState<ClientOrder | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {
@@ -37,12 +39,14 @@ export function OrderDetail({ id }: { id: string }) {
         <Link className="text-sm font-semibold text-slate-500 hover:text-navy" href="/orders">
           ← {t("detail.back")}
         </Link>
-        <Link
-          className="text-sm font-semibold text-slate-500 hover:text-navy"
-          href={`/new?id=${order.id}`}
-        >
-          {t("detail.edit")}
-        </Link>
+        {allowPersistenceActions && (
+          <Link
+            className="text-sm font-semibold text-slate-500 hover:text-navy"
+            href={`/new?id=${order.id}`}
+          >
+            {t("detail.edit")}
+          </Link>
+        )}
       </div>
       <ProductionReviewSheet spec={order.spec} review={review} order={order} />
       {(order.sourceText || order.files.length > 0) && (
@@ -60,17 +64,26 @@ export function OrderDetail({ id }: { id: string }) {
                   {t("detail.files")}
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {order.files.map((file) => (
-                    <a
-                      key={file.id || file.relativePath}
-                      className="rounded-lg border border-line bg-slate-50 px-3 py-2 text-sm font-semibold text-navy hover:border-navy"
-                      href={file.url}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      {file.originalName}
-                    </a>
-                  ))}
+                  {order.files.map((file) =>
+                    file.url ? (
+                      <a
+                        key={file.id || file.relativePath}
+                        className="rounded-lg border border-line bg-slate-50 px-3 py-2 text-sm font-semibold text-navy hover:border-navy"
+                        href={file.url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {file.originalName}
+                      </a>
+                    ) : (
+                      <span
+                        key={file.id || file.relativePath}
+                        className="rounded-lg border border-line bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-600"
+                      >
+                        {file.originalName}
+                      </span>
+                    ),
+                  )}
                 </div>
               </div>
             )}

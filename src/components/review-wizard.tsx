@@ -9,7 +9,7 @@ import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ProcessSteps } from "@/components/process-steps";
 import { ProductionReviewSheet } from "@/components/production-review-sheet";
 import { ReviewFindings } from "@/components/review-findings";
-import { DEMO_CONFIDENCE, DEMO_FILE, DEMO_INQUIRY, DEMO_REVIEW, DEMO_SPEC } from "@/lib/demo";
+import { buildDemoClientOrder, getDemoOrder } from "@/lib/demo-orders";
 import {
   emptyOrderSpec,
   surfaceFinishes,
@@ -168,7 +168,9 @@ export function ReviewWizard() {
   const { language, t } = useLanguage();
   const searchParams = useSearchParams();
   const editingId = searchParams.get("id") || "";
-  const isDemo = searchParams.get("demo") === "1";
+  const demoId = searchParams.get("demo") || "";
+  const selectedDemo = getDemoOrder(demoId);
+  const isDemo = Boolean(selectedDemo);
   const showDemoSheet = isDemo && searchParams.get("stage") === "sheet";
   const hasHomeIntake = searchParams.get("intake") === "1";
   const initialized = useRef(false);
@@ -246,50 +248,29 @@ export function ReviewWizard() {
         return;
       }
 
-      if (isDemo) {
-        const demoCreatedAt = "2026-08-27T08:00:00.000Z";
-        const demoReview = reviewOrder(
-          DEMO_SPEC,
-          "DEMO-CBX-001",
-          { salesperson: "Demo Sales", reviewer: "Demo Reviewer", createdAt: demoCreatedAt },
-          language,
-        );
+      if (selectedDemo) {
+        const demoOrder = buildDemoClientOrder(selectedDemo, language);
+        const demoReview: ReviewResult = {
+          missingFields: demoOrder.missingFields,
+          riskItems: demoOrder.riskItems,
+          customerQuestions: demoOrder.customerQuestions,
+          internalSummary: demoOrder.internalSummary || "",
+          reviewSheet: demoOrder.reviewSheet || "",
+        };
         reset({
-          customerName: DEMO_SPEC.customerName,
-          salesperson: "Demo Sales",
-          sourceText: DEMO_INQUIRY,
-          internalNotes: "",
-          reviewer: "Demo Reviewer",
-          spec: { ...DEMO_SPEC },
+          customerName: demoOrder.customerName,
+          salesperson: demoOrder.salesperson || "",
+          sourceText: demoOrder.sourceText || "",
+          internalNotes: demoOrder.internalNotes || "",
+          reviewer: demoOrder.reviewer || "",
+          spec: demoOrder.spec,
         });
-        setFiles([DEMO_FILE]);
-        setConfidence(DEMO_CONFIDENCE);
-        setReview(showDemoSheet ? demoReview : DEMO_REVIEW);
+        setFiles(demoOrder.files);
+        setConfidence(demoOrder.confidence);
+        setReview(demoReview);
         setNotice("notice.demoLoaded");
         if (showDemoSheet && PUBLIC_DEMO_MODE) {
-          setSavedOrder({
-            id: "public-demo-session",
-            orderNo: "DEMO-CBX-001",
-            isDemo: true,
-            customerName: DEMO_SPEC.customerName,
-            productName: DEMO_SPEC.productName,
-            quantity: DEMO_SPEC.quantity,
-            status: deriveStatus("reviewed", demoReview.missingFields, demoReview.riskItems),
-            salesperson: "Demo Sales",
-            sourceText: DEMO_INQUIRY,
-            internalNotes: "",
-            reviewer: "Demo Reviewer",
-            internalSummary: demoReview.internalSummary,
-            reviewSheet: demoReview.reviewSheet,
-            createdAt: demoCreatedAt,
-            updatedAt: demoCreatedAt,
-            spec: DEMO_SPEC,
-            confidence: DEMO_CONFIDENCE,
-            missingFields: demoReview.missingFields,
-            riskItems: demoReview.riskItems,
-            customerQuestions: demoReview.customerQuestions,
-            files: [DEMO_FILE],
-          });
+          setSavedOrder(demoOrder);
           setGenerated(true);
         }
         setStep(2);
@@ -357,6 +338,7 @@ export function ReviewWizard() {
     void initialize();
   }, [
     editingId,
+    demoId,
     hasHomeIntake,
     isDemo,
     language,
@@ -370,6 +352,7 @@ export function ReviewWizard() {
     setStep,
     setValue,
     showDemoSheet,
+    selectedDemo,
   ]);
 
   async function uploadFiles(selected: FileList | File[]) {
@@ -522,7 +505,7 @@ export function ReviewWizard() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           spec,
-          orderNo: savedOrder?.orderNo,
+          orderNo: selectedDemo?.orderNo || savedOrder?.orderNo,
           salesperson: values.salesperson,
           notes: values.internalNotes,
           reviewer: values.reviewer,
@@ -546,7 +529,7 @@ export function ReviewWizard() {
     const values = getValues();
     const normalizedSpec = normalizeNumbers(values.spec);
     if (PUBLIC_DEMO_MODE) {
-      const orderNo = isDemo ? "DEMO-CBX-001" : "SESSION-PREVIEW";
+      const orderNo = selectedDemo?.orderNo || "SESSION-PREVIEW";
       const createdAt = new Date().toISOString();
       const publicReview = reviewOrder(
         normalizedSpec,
@@ -560,7 +543,7 @@ export function ReviewWizard() {
         language,
       );
       setSavedOrder({
-        id: "public-demo-session",
+        id: selectedDemo?.id || "public-demo-session",
         orderNo,
         isDemo,
         customerName: normalizedSpec.customerName,
