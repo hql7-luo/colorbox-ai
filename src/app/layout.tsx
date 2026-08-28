@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AppNav } from "@/components/app-nav";
 import { PublicDemoNotice } from "@/components/public-demo-notice";
+import { PublicDemoProvider } from "@/components/public-demo-provider";
 import { LanguageProvider } from "@/i18n/language-provider";
+import { PUBLIC_DEMO_MODE } from "@/lib/public-demo-server";
 
 export const metadata: Metadata = {
   title: "ColorBox AI — Packaging Order Review",
@@ -26,11 +28,13 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="zh-CN">
       <body>
-        <LanguageProvider>
-          <AppNav />
-          <main>{children}</main>
-          <PublicDemoNotice />
-        </LanguageProvider>
+        <PublicDemoProvider publicDemo={PUBLIC_DEMO_MODE}>
+          <LanguageProvider>
+            <AppNav />
+            <main>{children}</main>
+            <PublicDemoNotice />
+          </LanguageProvider>
+        </PublicDemoProvider>
       </body>
     </html>
   );

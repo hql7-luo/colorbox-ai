@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { PUBLIC_DEMO_MODE } from "@/lib/public-demo-server";
 
 export const runtime = "nodejs";
 

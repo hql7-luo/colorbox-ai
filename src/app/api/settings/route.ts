@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getAiConfigStatus } from "@/lib/ai/service";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { PUBLIC_DEMO_MODE } from "@/lib/public-demo-server";
 
 const settingSchema = z.object({
   companyName: z.string().min(1),
@@ -31,6 +31,7 @@ export async function GET() {
     setting,
     ai: getAiConfigStatus(),
     uploadDirectory: "storage/uploads",
+    publicDemo: false,
   });
 }
 

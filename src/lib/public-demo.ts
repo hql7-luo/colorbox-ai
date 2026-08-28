@@ -1,5 +1,13 @@
-export const PUBLIC_DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
-
-export function allowsPersistentOrderActions(publicDemo = PUBLIC_DEMO_MODE) {
+export function allowsPersistentOrderActions(publicDemo: boolean) {
   return !publicDemo;
+}
+
+export function shouldGenerateOrderLocally({
+  selectedDemo,
+  publicDemo,
+}: {
+  selectedDemo: boolean;
+  publicDemo: boolean;
+}) {
+  return selectedDemo || publicDemo;
 }

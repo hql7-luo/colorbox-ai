@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { buildExcelRows } from "@/lib/export";
 import { serializeOrder } from "@/lib/orders";
 import { formatDateTime, isLanguage, translate } from "@/i18n";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { PUBLIC_DEMO_MODE } from "@/lib/public-demo-server";
 
 type Context = { params: Promise<{ id: string }> };
 

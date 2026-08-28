@@ -7,7 +7,7 @@ import type { ClientFile } from "@/types";
 import { useLanguage } from "@/i18n/language-provider";
 import type { TranslationKey } from "@/i18n";
 import { DEMO_ORDERS } from "@/lib/demo-orders";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { usePublicDemo } from "@/components/public-demo-provider";
 
 function formatBytes(size: number) {
   if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
@@ -17,6 +17,7 @@ function formatBytes(size: number) {
 export function HomeReview() {
   const router = useRouter();
   const { language, t } = useLanguage();
+  const publicDemo = usePublicDemo();
   const fileInput = useRef<HTMLInputElement>(null);
   const sessionId = useMemo(() => crypto.randomUUID(), []);
   const [sourceText, setSourceText] = useState("");
@@ -28,7 +29,7 @@ export function HomeReview() {
   async function uploadFiles(selected: FileList | File[]) {
     const selectedFiles = Array.from(selected);
     if (!selectedFiles.length) return;
-    if (PUBLIC_DEMO_MODE) {
+    if (publicDemo) {
       setMessage("public.uploadDisabled");
       return;
     }
@@ -109,7 +110,7 @@ export function HomeReview() {
             type="button"
             className="btn-secondary mt-5"
             onClick={() => fileInput.current?.click()}
-            disabled={uploading}
+            disabled={uploading || publicDemo}
           >
             {uploading ? t("home.uploading") : t("home.chooseFiles")}
           </button>
@@ -118,10 +119,11 @@ export function HomeReview() {
             className="hidden"
             type="file"
             multiple
+            disabled={publicDemo}
             accept=".pdf,.png,.jpg,.jpeg,.webp,.xlsx,.xls,.csv,.doc,.docx,.txt"
             onChange={(event) => event.target.files && void uploadFiles(event.target.files)}
           />
-          {PUBLIC_DEMO_MODE && (
+          {publicDemo && (
             <p className="mt-4 text-xs leading-5 text-slate-500">{t("public.mode")}</p>
           )}
         </div>

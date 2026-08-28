@@ -3,7 +3,7 @@ import { z } from "zod";
 import { extractOrder } from "@/lib/ai/service";
 import { uploadedFileSchema } from "@/lib/order-schema";
 import { isLanguage, translate, type Language } from "@/i18n";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { PUBLIC_DEMO_MODE } from "@/lib/public-demo-server";
 
 export const runtime = "nodejs";
 

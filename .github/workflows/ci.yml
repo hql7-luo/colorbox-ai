@@ -16,7 +16,7 @@ jobs:
     env:
       DATABASE_URL: file:./ci.db
       AI_API_KEY: ""
-      NEXT_PUBLIC_DEMO_MODE: "true"
+      PUBLIC_DEMO_MODE: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

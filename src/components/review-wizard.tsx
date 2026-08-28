@@ -8,6 +8,7 @@ import clsx from "clsx";
 import { ConfidenceBadge } from "@/components/confidence-badge";
 import { ProcessSteps } from "@/components/process-steps";
 import { ProductionReviewSheet } from "@/components/production-review-sheet";
+import { usePublicDemo } from "@/components/public-demo-provider";
 import { ReviewFindings } from "@/components/review-findings";
 import { buildDemoClientOrder, getDemoOrder } from "@/lib/demo-orders";
 import {
@@ -17,7 +18,7 @@ import {
   type OrderSpec,
 } from "@/lib/order-schema";
 import { deriveStatus, reviewOrder, type ReviewResult } from "@/lib/review";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { shouldGenerateOrderLocally } from "@/lib/public-demo";
 import { useWizardStore } from "@/store/wizard";
 import type { ClientFile, ClientOrder } from "@/types";
 import { useLanguage } from "@/i18n/language-provider";
@@ -166,6 +167,7 @@ function reviewFromAiOutput(output: {
 
 export function ReviewWizard() {
   const { language, t } = useLanguage();
+  const publicDemo = usePublicDemo();
   const searchParams = useSearchParams();
   const editingId = searchParams.get("id") || "";
   const demoId = searchParams.get("demo") || "";
@@ -269,12 +271,12 @@ export function ReviewWizard() {
         setConfidence(demoOrder.confidence);
         setReview(demoReview);
         setNotice("notice.demoLoaded");
-        if (showDemoSheet && PUBLIC_DEMO_MODE) {
+        if (showDemoSheet) {
           setSavedOrder(demoOrder);
           setGenerated(true);
         }
         setStep(2);
-        if (showDemoSheet && PUBLIC_DEMO_MODE) setStep(3);
+        if (showDemoSheet) setStep(3);
         return;
       }
 
@@ -358,7 +360,7 @@ export function ReviewWizard() {
   async function uploadFiles(selected: FileList | File[]) {
     const list = Array.from(selected);
     if (!list.length) return;
-    if (PUBLIC_DEMO_MODE) {
+    if (publicDemo) {
       setMessage("public.uploadDisabled");
       return;
     }
@@ -528,7 +530,7 @@ export function ReviewWizard() {
     if (!review) return;
     const values = getValues();
     const normalizedSpec = normalizeNumbers(values.spec);
-    if (PUBLIC_DEMO_MODE) {
+    if (shouldGenerateOrderLocally({ selectedDemo: Boolean(selectedDemo), publicDemo })) {
       const orderNo = selectedDemo?.orderNo || "SESSION-PREVIEW";
       const createdAt = new Date().toISOString();
       const publicReview = reviewOrder(
@@ -586,13 +588,20 @@ export function ReviewWizard() {
     setMessage(null);
     try {
       const targetId = savedOrder?.id || editingId;
-      const response = await fetch(targetId ? `/api/orders/${targetId}` : "/api/orders", {
-        method: targetId ? "PUT" : "POST",
+      const requestUrl = targetId ? `/api/orders/${targetId}` : "/api/orders";
+      const requestMethod = targetId ? "PUT" : "POST";
+      const response = await fetch(requestUrl, {
+        method: requestMethod,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error("generate failed");
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const serverMessage = typeof data.error === "string" && data.error ? `: ${data.error}` : "";
+        throw new Error(
+          `${requestMethod} ${requestUrl} failed (${response.status})${serverMessage}`,
+        );
+      }
       setSavedOrder(data);
       setReview({
         missingFields: data.missingFields,
@@ -603,7 +612,10 @@ export function ReviewWizard() {
       });
       setGenerated(true);
       setMessage(null);
-    } catch {
+    } catch (error) {
+      if (process.env.NODE_ENV !== "production") {
+        console.error("Could not generate the review sheet", error);
+      }
       setMessage("error.generate");
     } finally {
       setBusy(false);
@@ -629,7 +641,7 @@ export function ReviewWizard() {
               {editingId ? t("review.savedTitle") : t("review.title")}
             </h1>
           </div>
-          {savedOrder && (
+          {savedOrder && !publicDemo && !isDemo && (
             <Link
               href={`/orders/${savedOrder.id}`}
               className="text-sm font-semibold text-slate-500 hover:text-navy"
@@ -642,7 +654,7 @@ export function ReviewWizard() {
 
       {!(step === 3 && generated) && <ProcessSteps current={step} />}
 
-      {PUBLIC_DEMO_MODE && !(step === 3 && generated) && (
+      {publicDemo && !(step === 3 && generated) && (
         <div className="mt-5 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
           <span>{t("public.mode")}</span>
           {isDemo && <strong className="text-navy">{t("public.demoData")}</strong>}
@@ -680,7 +692,7 @@ export function ReviewWizard() {
                 type="button"
                 className="btn-secondary mt-4"
                 onClick={() => inputRef.current?.click()}
-                disabled={uploading}
+                disabled={uploading || publicDemo}
               >
                 {uploading ? t("home.uploading") : t("home.chooseFiles")}
               </button>
@@ -689,6 +701,7 @@ export function ReviewWizard() {
                 className="hidden"
                 type="file"
                 multiple
+                disabled={publicDemo}
                 accept=".pdf,.png,.jpg,.jpeg,.webp,.xlsx,.xls,.csv,.doc,.docx,.txt"
                 onChange={(event) => event.target.files && void uploadFiles(event.target.files)}
               />

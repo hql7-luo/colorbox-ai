@@ -7,13 +7,15 @@ import { useLanguage } from "@/i18n/language-provider";
 import type { TranslationKey } from "@/i18n";
 import { orderStatuses } from "@/lib/order-status";
 import type { ClientOrder } from "@/types";
-import { allowsPersistentOrderActions, PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { allowsPersistentOrderActions } from "@/lib/public-demo";
+import { usePublicDemo } from "@/components/public-demo-provider";
 
 type Notice = { key: TranslationKey; params?: Record<string, string | number> } | null;
 
 export function OrderList() {
   const { language, t, formatDate, formatDateTime } = useLanguage();
-  const allowPersistenceActions = allowsPersistentOrderActions();
+  const publicDemo = usePublicDemo();
+  const allowPersistenceActions = allowsPersistentOrderActions(publicDemo);
   const [orders, setOrders] = useState<ClientOrder[]>([]);
   const [customers, setCustomers] = useState<string[]>([]);
   const [search, setSearch] = useState("");
@@ -75,7 +77,7 @@ export function OrderList() {
         </div>
       )}
 
-      {PUBLIC_DEMO_MODE && (
+      {publicDemo && (
         <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">
           {t("public.orders")}
         </div>

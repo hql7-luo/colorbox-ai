@@ -5,7 +5,7 @@ import { orderInputSchema } from "@/lib/order-schema";
 import { deriveStatus, reviewOrder } from "@/lib/review";
 import { formatDateTime } from "@/i18n";
 import { normalizeOrderStatus, statusStorageValues } from "@/lib/order-status";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { PUBLIC_DEMO_MODE } from "@/lib/public-demo-server";
 import { getDemoClientOrders } from "@/lib/demo-orders";
 
 export const dynamic = "force-dynamic";

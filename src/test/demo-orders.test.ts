@@ -93,7 +93,7 @@ describe("Public Demo API", () => {
     );
     expect(response.status).toBe(403);
     expect(createSpy).not.toHaveBeenCalled();
-    expect(allowsPersistentOrderActions()).toBe(false);
+    expect(allowsPersistentOrderActions(true)).toBe(false);
     createSpy.mockRestore();
   });
 });

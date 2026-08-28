@@ -4,7 +4,7 @@ import { createOrderNo, fileCreateData, serializeOrder } from "@/lib/orders";
 import { orderInputSchema } from "@/lib/order-schema";
 import { deriveStatus, reviewOrder } from "@/lib/review";
 import { formatDateTime, isLanguage, translate } from "@/i18n";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { PUBLIC_DEMO_MODE } from "@/lib/public-demo-server";
 import { getDemoClientOrder } from "@/lib/demo-orders";
 
 type Context = { params: Promise<{ id: string }> };

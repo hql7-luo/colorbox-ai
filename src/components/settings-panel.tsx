@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/i18n/language-provider";
 import type { TranslationKey } from "@/i18n";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
+import { usePublicDemo } from "@/components/public-demo-provider";
 
 type SettingsData = {
   setting: {
@@ -33,6 +33,7 @@ const rules: TranslationKey[] = [
 
 export function SettingsPanel() {
   const { t } = useLanguage();
+  const publicDemo = usePublicDemo();
   const [data, setData] = useState<SettingsData | null>(null);
   const [message, setMessage] = useState<TranslationKey | null>(null);
   useEffect(() => {
@@ -69,7 +70,7 @@ export function SettingsPanel() {
           {t(message)}
         </div>
       )}
-      {PUBLIC_DEMO_MODE && (
+      {publicDemo && (
         <div className="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
           {t("public.settings")}
         </div>
@@ -86,7 +87,7 @@ export function SettingsPanel() {
               <span className="label">{t("settings.company")}</span>
               <input
                 className="input"
-                disabled={PUBLIC_DEMO_MODE}
+                disabled={publicDemo}
                 value={data.setting.companyName}
                 onChange={(event) =>
                   setData({
@@ -100,7 +101,7 @@ export function SettingsPanel() {
               <span className="label">{t("settings.salesperson")}</span>
               <input
                 className="input"
-                disabled={PUBLIC_DEMO_MODE}
+                disabled={publicDemo}
                 value={data.setting.defaultSalesperson || ""}
                 onChange={(event) =>
                   setData({
@@ -114,7 +115,7 @@ export function SettingsPanel() {
               <span className="label">{t("settings.tradeTerms")}</span>
               <input
                 className="input"
-                disabled={PUBLIC_DEMO_MODE}
+                disabled={publicDemo}
                 value={data.setting.defaultTradeTerm || ""}
                 onChange={(event) =>
                   setData({
@@ -128,7 +129,7 @@ export function SettingsPanel() {
               <span className="label">{t("settings.defaultLanguage")}</span>
               <select
                 className="input"
-                disabled={PUBLIC_DEMO_MODE}
+                disabled={publicDemo}
                 value={data.setting.defaultLanguage}
                 onChange={(event) =>
                   setData({
@@ -144,7 +145,7 @@ export function SettingsPanel() {
                 <option value="English">{t("language.en")}</option>
               </select>
             </label>
-            <button className="btn-primary" onClick={() => void save()} disabled={PUBLIC_DEMO_MODE}>
+            <button className="btn-primary" onClick={() => void save()} disabled={publicDemo}>
               {t("settings.save")}
             </button>
           </div>

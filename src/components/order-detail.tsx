@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import { ProductionReviewSheet } from "@/components/production-review-sheet";
 import { useLanguage } from "@/i18n/language-provider";
 import { allowsPersistentOrderActions } from "@/lib/public-demo";
+import { usePublicDemo } from "@/components/public-demo-provider";
 import type { ClientOrder } from "@/types";
 
 export function OrderDetail({ id }: { id: string }) {
   const { t } = useLanguage();
-  const allowPersistenceActions = allowsPersistentOrderActions();
+  const publicDemo = usePublicDemo();
+  const allowPersistenceActions = allowsPersistentOrderActions(publicDemo);
   const [order, setOrder] = useState<ClientOrder | null>(null);
   const [error, setError] = useState("");
   useEffect(() => {

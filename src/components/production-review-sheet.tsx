@@ -6,10 +6,10 @@ import clsx from "clsx";
 import { formatDateTime, translate, type Language, type TranslationKey } from "@/i18n";
 import { translateFinish, translateMissing, translateRisk, translateSeverity } from "@/i18n/domain";
 import { useLanguage } from "@/i18n/language-provider";
+import { usePublicDemo } from "@/components/public-demo-provider";
 import type { OrderSpec } from "@/lib/order-schema";
 import { buildInternalSummary, type ReviewResult } from "@/lib/review";
 import { buildExcelRows } from "@/lib/export";
-import { PUBLIC_DEMO_MODE } from "@/lib/public-demo";
 import type { ClientOrder } from "@/types";
 
 function copyWithTextarea(text: string) {
@@ -43,10 +43,12 @@ export function ProductionReviewSheet({
   order: ClientOrder;
 }) {
   const { language, t } = useLanguage();
+  const publicDemo = usePublicDemo();
   const [exportLanguage, setExportLanguage] = useState<Language>(language);
   const [customerLanguage, setCustomerLanguage] = useState<Language>("en");
   const [copied, setCopied] = useState<"summary" | "questions" | null>(null);
   const exportLanguageTouched = useRef(false);
+  const localPreview = publicDemo || order.isDemo || order.id === "public-demo-session";
 
   useEffect(() => {
     if (!exportLanguageTouched.current) setExportLanguage(language);
@@ -296,7 +298,7 @@ export function ProductionReviewSheet({
       </section>
 
       <div className="no-print mt-6 flex flex-wrap items-center justify-center gap-3">
-        {PUBLIC_DEMO_MODE ? (
+        {localPreview ? (
           <>
             <button
               className="btn-secondary"
