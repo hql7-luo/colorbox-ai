@@ -4,13 +4,16 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PublicDemoProvider } from "@/components/public-demo-provider";
+import { AppNav } from "@/components/app-nav";
 import { ReviewWizard } from "@/components/review-wizard";
+import { LANGUAGE_STORAGE_KEY } from "@/i18n";
 import { LanguageProvider } from "@/i18n/language-provider";
 import { buildDemoClientOrder, DEMO_IDS, getDemoOrder } from "@/lib/demo-orders";
 import { reviewOrder } from "@/lib/review";
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(window.location.search),
+  usePathname: () => window.location.pathname,
 }));
 
 vi.mock("xlsx", () => ({
@@ -94,6 +97,7 @@ function renderWizard(publicDemo: boolean) {
   return render(
     <PublicDemoProvider publicDemo={publicDemo}>
       <LanguageProvider>
+        <AppNav />
         <ReviewWizard />
       </LanguageProvider>
     </PublicDemoProvider>,
@@ -176,6 +180,33 @@ describe("Public Demo Generate Sheet interaction", () => {
 
     await user.click(screen.getByRole("button", { name: "Print / PDF" }));
     expect(printSpy).toHaveBeenCalledOnce();
+    expect(orderPersistenceCalls(fetchMock)).toHaveLength(0);
+  });
+
+  it("updates the document language without losing the current review state", async () => {
+    window.history.replaceState({}, "", "/new?demo=folding-carton");
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, "zh");
+    const fetchMock = createFetchMock();
+    vi.stubGlobal("fetch", fetchMock);
+    const user = userEvent.setup();
+
+    renderWizard(true);
+    const productInput = await screen.findByDisplayValue(
+      getDemoOrder("folding-carton")!.spec.productName,
+    );
+    await user.clear(productInput);
+    await user.type(productInput, "Edited Cosmetic Carton");
+
+    expect(document.documentElement.lang).toBe("zh-CN");
+    await user.click(screen.getByRole("button", { name: "EN" }));
+    expect(document.documentElement.lang).toBe("en");
+    expect(screen.getByDisplayValue("Edited Cosmetic Carton")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Confirm Specs" })).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "中" }));
+    expect(document.documentElement.lang).toBe("zh-CN");
+    expect(screen.getByDisplayValue("Edited Cosmetic Carton")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "确认规格" })).toBeTruthy();
     expect(orderPersistenceCalls(fetchMock)).toHaveLength(0);
   });
 });

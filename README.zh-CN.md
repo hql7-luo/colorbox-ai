@@ -30,14 +30,15 @@ Next.js App Router、TypeScript、Tailwind CSS、Prisma、SQLite、Zod、React H
 
 ## 本地运行
 
-需要 Node.js 20+ 和 npm。
+需要 Node.js 20+ 和 pnpm 11.24.0（通过 Corepack 管理）。
 
 ```bash
 git clone https://github.com/hql7-luo/colorbox-ai.git
 cd colorbox-ai
 cp .env.example .env
-npm install
-npm run dev
+corepack enable
+pnpm install
+pnpm dev
 ```
 
 打开 [http://localhost:3000](http://localhost:3000)，点击**体验演示**即可用最短路径查看完整流程。
@@ -146,9 +147,9 @@ AI_MODEL="兼容模型名称"
 ## 测试
 
 ```bash
-npm run lint
-npm run test
-npm run build
+pnpm lint
+pnpm test
+pnpm build
 ```
 
 测试覆盖 AI JSON 验证、无 Key 回退、订单保存、缺失/风险规则、SKU 计算、状态变化、中英文客户问题和工单、Excel 数据，以及 SQLite 创建与读取。GitHub Actions 会在推送和 Pull Request 时运行相同检查。
@@ -156,8 +157,8 @@ npm run build
 ## 工厂局域网部署
 
 ```bash
-npm run build
-npm run start -- --hostname 0.0.0.0 --port 3000
+pnpm build
+pnpm start -- --hostname 0.0.0.0 --port 3000
 ```
 
 同一网络内的设备访问 `http://<服务器局域网IP>:3000`，并在主机防火墙放行 TCP 3000 端口。长期使用建议通过守护进程运行并定时备份。V1 默认面向可信工厂局域网；远程访问前应增加 VPN 或带身份认证的反向代理。

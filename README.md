@@ -30,14 +30,15 @@ Next.js App Router, TypeScript, Tailwind CSS, Prisma, SQLite, Zod, React Hook Fo
 
 ## Run locally
 
-Requirements: Node.js 20+ and npm.
+Requirements: Node.js 20+ and pnpm 11.24.0 (managed through Corepack).
 
 ```bash
 git clone https://github.com/hql7-luo/colorbox-ai.git
 cd colorbox-ai
 cp .env.example .env
-npm install
-npm run dev
+corepack enable
+pnpm install
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000), then click **Try Demo** for the shortest walkthrough.
@@ -146,9 +147,9 @@ The database, uploaded files, environment files, logs, and build caches are excl
 ## Tests
 
 ```bash
-npm run lint
-npm run test
-npm run build
+pnpm lint
+pnpm test
+pnpm build
 ```
 
 The test suite covers AI JSON validation, no-key fallback, order persistence, missing/risk rules, SKU arithmetic, status transitions, bilingual customer questions and review sheets, Excel export data, and SQLite create/read behavior. GitHub Actions runs the same checks on pushes and pull requests.
@@ -156,8 +157,8 @@ The test suite covers AI JSON validation, no-key fallback, order persistence, mi
 ## Factory LAN deployment
 
 ```bash
-npm run build
-npm run start -- --hostname 0.0.0.0 --port 3000
+pnpm build
+pnpm start -- --hostname 0.0.0.0 --port 3000
 ```
 
 Open `http://<server-lan-ip>:3000` from devices on the same network and allow TCP port 3000 through the host firewall. For regular internal use, run the process under a supervisor and schedule backups. V1 assumes a trusted factory LAN; add VPN or reverse-proxy authentication before remote access.
