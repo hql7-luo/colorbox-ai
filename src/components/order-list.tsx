@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StatusBadge } from "@/components/status-badge";
 import { useLanguage } from "@/i18n/language-provider";
 import type { TranslationKey } from "@/i18n";
@@ -23,20 +23,35 @@ export function OrderList() {
   const [customer, setCustomer] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<Notice>(null);
+  const latestRequest = useRef(0);
 
   const loadOrders = useCallback(async () => {
+    const requestId = ++latestRequest.current;
     setLoading(true);
-    const params = new URLSearchParams({ search, status, customer });
-    const response = await fetch(`/api/orders?${params}`, { cache: "no-store" });
-    const data = await response.json();
-    setOrders(data.orders || []);
-    setCustomers(data.customers || []);
-    setLoading(false);
+    setMessage((current) => (current?.key === "error.loadOrders" ? null : current));
+    try {
+      const params = new URLSearchParams({ search, status, customer });
+      const response = await fetch(`/api/orders?${params}`, { cache: "no-store" });
+      if (!response.ok) throw new Error("load failed");
+      const data = await response.json();
+      if (requestId !== latestRequest.current) return;
+      setOrders(data.orders || []);
+      setCustomers(data.customers || []);
+    } catch {
+      if (requestId !== latestRequest.current) return;
+      setOrders([]);
+      setMessage({ key: "error.loadOrders" });
+    } finally {
+      if (requestId === latestRequest.current) setLoading(false);
+    }
   }, [search, status, customer]);
 
   useEffect(() => {
     const timer = setTimeout(() => void loadOrders(), 200);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      latestRequest.current += 1;
+    };
   }, [loadOrders]);
 
   async function copyOrder(id: string) {
@@ -190,7 +205,7 @@ export function OrderList() {
             </tbody>
           </table>
         </div>
-        {!loading && orders.length === 0 && (
+        {!loading && orders.length === 0 && message?.key !== "error.loadOrders" && (
           <div className="p-12 text-center">
             <p className="font-bold">{t("orders.empty")}</p>
           </div>

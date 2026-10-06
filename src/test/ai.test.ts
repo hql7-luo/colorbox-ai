@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { aiOutputSchema, emptyOrderSpec } from "@/lib/order-schema";
 import { extractOrder } from "@/lib/ai/service";
+import { extractWithLocalRules } from "@/lib/ai/local-extractor";
 
 const previousKey = process.env.AI_API_KEY;
 
@@ -10,6 +11,17 @@ afterEach(() => {
 });
 
 describe("AI 输出验证与降级", () => {
+  it("keeps finishes isolated between extracted orders and blank defaults", () => {
+    const first = extractWithLocalRules("数量: 5000，哑膜，烫金");
+    const second = extractWithLocalRules("数量: 3000，白卡纸");
+
+    expect(first.extractedFields.finishes).toEqual(["MATTE_LAMINATION", "GOLD_FOIL"]);
+    expect(second.extractedFields.finishes).toEqual([]);
+    expect(second.missingFields.some((item) => item.code === "MISSING_FOIL_COLOR")).toBe(false);
+    expect(second.riskItems.some((item) => item.code === "FOIL_POSITION_UNKNOWN")).toBe(false);
+    expect(emptyOrderSpec.finishes).toEqual([]);
+  });
+
   it("接受完整统一 JSON 结构", () => {
     const result = aiOutputSchema.safeParse({
       extractedFields: emptyOrderSpec,

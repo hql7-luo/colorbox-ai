@@ -345,6 +345,7 @@ export const zh = {
   "error.review": "审单检查失败",
   "error.generate": "生成工单失败",
   "error.loadOrder": "订单读取失败",
+  "error.loadOrders": "订单列表读取失败，请重试。",
   "error.loadSettings": "设置读取失败",
   "error.saveSettings": "设置保存失败",
   "notice.demoLoaded": "演示订单已载入：AI 提取完成，请确认规格和风险。",

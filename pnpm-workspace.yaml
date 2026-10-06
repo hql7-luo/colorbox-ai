@@ -5,3 +5,7 @@ allowBuilds:
   prisma: true
   sharp: true
   unrs-resolver: true
+
+# Next 15 pins an older PostCSS release; keep the compatible security fixes.
+overrides:
+  "next@15>postcss": "8.5.25"

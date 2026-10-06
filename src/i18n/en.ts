@@ -368,6 +368,7 @@ export const en: Record<TranslationKey, string> = {
   "error.review": "Order review failed",
   "error.generate": "Could not generate the review sheet",
   "error.loadOrder": "Could not load the order",
+  "error.loadOrders": "Could not load orders. Please try again.",
   "error.loadSettings": "Could not load settings",
   "error.saveSettings": "Could not save settings",
   "notice.demoLoaded": "Demo order loaded. AI extraction is complete; review the specs and risks.",

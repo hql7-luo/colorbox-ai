@@ -30,18 +30,20 @@ Next.js App Router、TypeScript、Tailwind CSS、Prisma、SQLite、Zod、React H
 
 ## 本地运行
 
-需要 Node.js 20+ 和 pnpm 11.24.0（通过 Corepack 管理）。
+需要 Node.js 22.13+ 和 pnpm 11.24.0（通过 Corepack 管理）。固定的 pnpm 版本要求 Node.js 22.13 或更高；`.nvmrc` 选择已测试的 Node.js 22 版本系列。
 
 ```bash
 git clone https://github.com/hql7-luo/colorbox-ai.git
 cd colorbox-ai
 cp .env.example .env
 corepack enable
-pnpm install
+pnpm install --frozen-lockfile
 pnpm dev
 ```
 
 打开 [http://localhost:3000](http://localhost:3000)，点击**体验演示**即可用最短路径查看完整流程。
+
+Excel 解析库使用 [SheetJS 官方 0.20.3 发行包](https://docs.sheetjs.com/docs/getting-started/installation/nodejs/)，依赖完整性记录在 `pnpm-lock.yaml` 中。
 
 ## 产品流程
 
@@ -148,11 +150,12 @@ AI_MODEL="兼容模型名称"
 
 ```bash
 pnpm lint
+pnpm typecheck
 pnpm test
 pnpm build
 ```
 
-测试覆盖 AI JSON 验证、无 Key 回退、订单保存、缺失/风险规则、SKU 计算、状态变化、中英文客户问题和工单、Excel 数据，以及 SQLite 创建与读取。GitHub Actions 会在推送和 Pull Request 时运行相同检查。
+测试覆盖 AI JSON 验证、无 Key 回退、订单保存、缺失/风险规则、SKU 计算、状态变化、中英文客户问题和工单、Excel 数据，以及 SQLite 创建与读取。GitHub Actions 会在推送和 Pull Request 时使用 Node.js 22 运行相同检查。
 
 ## 工厂局域网部署
 

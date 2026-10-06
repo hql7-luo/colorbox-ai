@@ -27,7 +27,7 @@ describe("统一 Demo 订单", () => {
   it.each(DEMO_IDS)("%s 可运行规则并生成问题与生产评审单", (id) => {
     const definition = getDemoOrder(id)!;
     const order = buildDemoClientOrder(definition, "en");
-    expect(order.sourceText.length).toBeGreaterThan(100);
+    expect(order.sourceText?.length ?? 0).toBeGreaterThan(100);
     expect(order.files[0]?.mimeType).toBe("application/pdf");
     expect(order.missingFields.length).toBeGreaterThan(0);
     expect(order.riskItems.length).toBeGreaterThan(0);

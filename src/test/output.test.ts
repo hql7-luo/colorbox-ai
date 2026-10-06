@@ -3,6 +3,7 @@ import { emptyOrderSpec, orderSpecSchema } from "@/lib/order-schema";
 import { buildExcelRows } from "@/lib/export";
 import { buildReviewSheet, reviewOrder } from "@/lib/review";
 import { buildDemoClientOrder, getDemoOrder } from "@/lib/demo-orders";
+import * as XLSX from "xlsx";
 
 const spec = orderSpecSchema.parse({
   ...emptyOrderSpec,
@@ -21,6 +22,23 @@ const spec = orderSpecSchema.parse({
 });
 
 describe("输出生成", () => {
+  it("round-trips a bilingual production workbook and keeps customer input as text", () => {
+    const customerSpec = { ...spec, customerName: "=1+1 测试客户" };
+    const rows = buildExcelRows("CBX-TEST-001", customerSpec, [], [], {}, "en");
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(rows), "Production Review");
+
+    const buffer = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" });
+    const parsed = XLSX.read(buffer, { type: "buffer" });
+    const sheet = parsed.Sheets["Production Review"];
+    const exportedRows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+    expect(exportedRows).toContainEqual(["Customer", customerSpec.customerName]);
+    expect(exportedRows).toContainEqual(["Order Quantity", 1000]);
+    expect(sheet.B3.t).toBe("s");
+    expect(sheet.B3.f).toBeUndefined();
+  });
+
   it("统一 Demo 可生成有实际价值的审单结果", () => {
     const demo = getDemoOrder("folding-carton");
     expect(demo).toBeDefined();

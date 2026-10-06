@@ -22,7 +22,7 @@ export function extractWithLocalRules(
   customerName = "",
   language: Language = "zh",
 ): AiOutput {
-  const spec: OrderSpec = { ...emptyOrderSpec, customerName };
+  const spec: OrderSpec = { ...emptyOrderSpec, customerName, finishes: [] };
   const confidence: Record<string, Confidence> = {};
   const content = source.replace(/,/g, "");
 

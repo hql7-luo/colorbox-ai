@@ -25,16 +25,14 @@ vi.mock("xlsx", () => ({
   writeFile: vi.fn(),
 }));
 
-type FetchCall = [RequestInfo | URL, RequestInit | undefined];
-
 function requestPath(input: RequestInfo | URL) {
   if (typeof input === "string") return input;
   if (input instanceof URL) return `${input.pathname}${input.search}`;
   return new URL(input.url).pathname;
 }
 
-function orderPersistenceCalls(fetchMock: ReturnType<typeof vi.fn>) {
-  return fetchMock.mock.calls.filter(([input, init]: FetchCall) => {
+function orderPersistenceCalls(fetchMock: ReturnType<typeof createFetchMock>) {
+  return fetchMock.mock.calls.filter(([input, init]) => {
     const path = requestPath(input);
     const method = init?.method?.toUpperCase() || "GET";
     return /^\/api\/orders(?:\/|$)/.test(path) && ["POST", "PUT", "DELETE"].includes(method);
